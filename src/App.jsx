@@ -116,14 +116,14 @@ function App() {
                                   {errors.passLength? "" : "Your account password is too short."}
                                   {errors.passStatus? "" : <span>Your account password cannot be empty. if you don't remember your password, <a href="#">reset it now.</a></span>}
                                 </div>
-
+                                { (errors.passLength && errors.passStatus) ?  
                                 <div
                                   id="important1"
                                   style={{ color: "black", fontSize: "13px" }}
                                 >
                                   Because you're accessing sensitive info, you
                                   need to verify your password
-                                </div>
+                                </div> : ""}
                                 <div className="row">
                                   <div className="form-group col-md-24">
                                     <div className="placeholderContainer">
